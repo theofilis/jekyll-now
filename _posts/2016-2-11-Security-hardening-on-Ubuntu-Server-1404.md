@@ -1,11 +1,11 @@
-= Security hardening on Ubuntu Server 14.04
+# Security hardening on Ubuntu Server 14.04
 :hp-tags: ubuntu
 
 Recently I've been involved with a project where I needed to perform some security hardening on instances running Ubuntu Server 12.04, so I used this excellent guide as a starting point, then I added, removed and modified things as needed.
 
 Assume that all these operations need to be performed as root, which you can either do with *sudo* or by logging in as root first. (I've noticed that Ubuntu users seem particularly averse to logging in as root, apparently preferring instead to issue an endless series of commands starting with sudo, but I'm afraid that kind of extra hassle is not for me, so I just log in as root first.)
 
-== Harden SSH
+## Harden SSH
 
  
 I generally regard it as a very sensible idea to disable any kind of root login over SSH, so in */etc/ssh/sshd_config* change *PermitRootLogin* to *no*.
@@ -14,29 +14,26 @@ If SSH on your servers is open to the world then I also advise running SSH on a 
 
 After making changes to SSH, reload the OpenSSH server:
 
-[source,bash]
-----
+{% highlight bash %}
 service ssh reload
-----
+{% endhighlight %}
 
 
-=== Limit su access to administrators only
+### Limit su access to administrators only
 
 It generally seems like a sensible idea to make sure that only users in the sudo group are able to run the su command in order to act as (or become) root:
 
 
-[source,bash]
-----
+{% highlight bash %}
 dpkg-statoverride --update --add root sudo 4750 /bin/su
-----
+{% endhighlight %}
 
 
-== Improve IP security
+## Improve IP security
 
 Add the following lines to /etc/sysctl.d/10-network-security.conf to improve IP security:
 
-[source,bash]
-----
+{% highlight bash %}
 # Ignore ICMP broadcast requests
 net.ipv4.icmp_echo_ignore_broadcasts = 1
 
@@ -67,16 +64,15 @@ net.ipv6.conf.default.accept_redirects = 0
 
 # Ignore Directed pings
 net.ipv4.icmp_echo_ignore_all = 1
-----
+{% endhighlight %}
 
 Load the new rules:
 
-[source,bash]
-----
-----
+{% highlight bash %}
+{% endhighlight %}
 
 
-== PHP hardening
+## PHP hardening
 
 If you're using PHP, these are changes worth making in /etc/php5/apache2/php.ini in order to improve the security of PHP:
 
@@ -85,29 +81,26 @@ If you're using PHP, these are changes worth making in /etc/php5/apache2/php.ini
 . Change *expose_php* to *Off*.
 . Ensure that *display_errors, track_errors* and *html_errors* are set to *Off*.
 
-
-== Apache hardening
+## Apache hardening
 
 If you're using Apache web server, it's worth making sure you have the following parameters set in */etc/apache2/conf-enabled/security.conf* to make sure Apache is suitably hardened:
 
 
-[source,conf]
-----
+{% highlight bash %}
 ServerTokens Prod
 ServerSignature Off
 TraceEnable Off
 Header unset ETag
 FileETag None
-----
+{% endhighlight %}
 
 Then restart Apache:
 
-[source,conf]
-----
+{% highlight bash %}
 service apache2 restart
-----
+{% endhighlight %}
 
-=== Install and configure ModSecurity
+### Install and configure ModSecurity
 
 If you're using Apache, the web application firewall ModSecurity is a great way to harden your web server so that it's much less vulnerable to probes and attacks. Firstly, install the necessary packages:
 
@@ -141,7 +134,7 @@ Restart Apache to active the new security rules:
 
 service apache2 restart
 
-=== Install and configure mod_evasive
+### Install and configure mod_evasive
 
 If you're using Apache then it's a good idea to install mod_evasive to help protect against denial of service attacks. Firstly install the package:
 
@@ -165,7 +158,7 @@ Then activate it by restarting Apache:
 
 service apache2 restart
 
-== Install and configure rootkit checkers
+## Install and configure rootkit checkers
 
 It's highly desirable to get alerted if any rootkits are found on your server, so let's install a couple of rootkit checkers:
 
@@ -182,7 +175,7 @@ mv /etc/cron.weekly/rkhunter /etc/cron.weekly/rkhunter_update
 mv /etc/cron.daily/rkhunter /etc/cron.weekly/rkhunter_run
 mv /etc/cron.daily/chkrootkit /etc/cron.weekly/
 
-== Install Logwatch
+## Install Logwatch
 
 Logwatch is a great tool which provides regular reports nicely summarising what's been going on in the server logs. Install it like this:
 
@@ -212,6 +205,7 @@ touch /var/log/wtmp
 To show users' connect times, run ac. To show information about commands previously run by users, run sa. To see the last commands run, run lastcomm. Those are a few commands to give you an idea of what's possible; just read the manpages to get more details if you need to.
 
 Edit: I recently threw together a quick Bash script to send a weekly email with a summary of user activity, login information and commands run. To get the same report yourself, create a file called /etc/cron.weekly/pacct-report containing the following (don't forget to make this file executable) (you can grab this from GitHub if you prefer):
+
 
 #!/bin/bash
 
