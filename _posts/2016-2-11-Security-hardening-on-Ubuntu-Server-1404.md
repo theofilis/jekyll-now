@@ -1,12 +1,14 @@
-# Security hardening on Ubuntu Server 14.04
-:hp-tags: ubuntu
+---
+layout: post
+title: Security hardening on Ubuntu Server 14.04
+tags: ubuntu, administrator
+---
 
 Recently I've been involved with a project where I needed to perform some security hardening on instances running Ubuntu Server 12.04, so I used this excellent guide as a starting point, then I added, removed and modified things as needed.
 
 Assume that all these operations need to be performed as root, which you can either do with *sudo* or by logging in as root first. (I've noticed that Ubuntu users seem particularly averse to logging in as root, apparently preferring instead to issue an endless series of commands starting with sudo, but I'm afraid that kind of extra hassle is not for me, so I just log in as root first.)
 
 ## Harden SSH
-
  
 I generally regard it as a very sensible idea to disable any kind of root login over SSH, so in */etc/ssh/sshd_config* change *PermitRootLogin* to *no*.
 
@@ -77,9 +79,9 @@ Load the new rules:
 If you're using PHP, these are changes worth making in /etc/php5/apache2/php.ini in order to improve the security of PHP:
 
 
-. Add *exec, system, shell_exec*, and *passthru* to *disable_functions*.
-. Change *expose_php* to *Off*.
-. Ensure that *display_errors, track_errors* and *html_errors* are set to *Off*.
+* Add *exec, system, shell_exec*, and *passthru* to *disable_functions*.
+* Change *expose_php* to *Off*.
+* Ensure that *display_errors, track_errors* and *html_errors* are set to *Off*.
 
 ## Apache hardening
 
